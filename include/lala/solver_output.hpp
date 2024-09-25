@@ -136,29 +136,54 @@ public:
   }
 
   template<class Env, class A, class S>
-  CUDA void print_solution_xml(const Env& env, const A& sol, const S& simplifier = SimplifierIdentity{}) const {
+  CUDA void print_optimization_solution_xml(const Env& env, const A& sol, const size_t nb_solution, const auto& obj, bool is_minimization, const S& simplifier = SimplifierIdentity{}) const {
     auto vars = join_str(output_vars, " ", [](const bstring& s) -> std::string { return s.data(); });
-    printf("v <instantiation> <list>%s</list> <values>", vars.c_str());
+    printf("v <instantiation id=\"sol%ld\" type=\"solution\" cost=\"", nb_solution);
+    if(is_minimization) {
+      obj.lb().template deinterpret<lala::TFormula<battery::standard_allocator>>().print(false);
+    }
+    else {
+      obj.ub().template deinterpret<lala::TFormula<battery::standard_allocator>>().print(false);
+    }
+    printf("\"> <list>%s</list> <values> ", vars.c_str());
+
     for (int i = 0; i < output_vars.size(); ++i) {
       simplifier.print_variable(output_vars[i], env, sol);
       if(i+1 != output_vars.size()) {
         printf(" ");
       }
     }
-    printf("</values> </instantiation>\n");
+    printf(" </values> </instantiation>\n");
   }
 
+  template<class Env, class A, class S>
+  CUDA void print_satisfaction_solution_xml(const Env& env, const A& sol, const S& simplifier = SimplifierIdentity{}) const {
+    auto vars = join_str(output_vars, " ", [](const bstring& s) -> std::string { return s.data(); });
+    printf("v <instantiation type=\"solution\" > <list>%s</list> <values> ", vars.c_str());
 
-
-  template <class Env, class A, class S>
-  CUDA void print_solution(const Env& env, const A& sol, const S& simplifier = SimplifierIdentity{}) const {
-    if(type == OutputType::FLATZINC) {
-      print_solution_flat_zinc(env, sol, simplifier);
-    }else{
-      print_solution_xml(env, sol, simplifier);
+    for (int i = 0; i < output_vars.size(); ++i) {
+      simplifier.print_variable(output_vars[i], env, sol);
+      if(i+1 != output_vars.size()) {
+        printf(" ");
+      }
     }
+    printf(" </values> </instantiation>\n");
   }
 
+
+
+  // template <class Env, class A, class S>
+  // CUDA void print_solution(const Env& env, const A& sol, const size_t nb_solution, const auto& obj, bool is_minimization, const S& simplifier = SimplifierIdentity{}) const {
+  //   if(type == OutputType::FLATZINC) {
+  //     print_solution_flat_zinc(env, sol, simplifier);
+  //   }else{
+  //     print_optimization_solution_xml(env, sol, nb_solution, obj, is_minimization, simplifier);
+  //   }
+  // }
+
+  CUDA void print(const char* str) const {
+    printf("%c %s",type==OutputType::FLATZINC? '%': 'c', str);
+  }
 };
 
 } // namespace lala
