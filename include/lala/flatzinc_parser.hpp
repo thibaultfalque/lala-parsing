@@ -430,7 +430,9 @@ public:
       if (name == "int_min") { return make_binary_fun_eq(MIN, sv); }
       if (name == "int_eq_reif") { return make_binary_fun_eq(EQ, sv, EQUIV); }
       if (name == "int_le_reif") { return make_binary_fun_eq(LEQ, sv, EQUIV); }
+      if (name == "int_ge_reif") { return make_binary_fun_eq(GEQ, sv, EQUIV); }
       if (name == "int_lt_reif") { return make_binary_fun_eq(LT, sv, EQUIV); }
+      if (name == "int_gt_reif") { return make_binary_fun_eq(GT, sv, EQUIV); }
       if (name == "int_ne_reif") { return make_binary_fun_eq(NEQ, sv, EQUIV); }
       if (name == "bool2int") { return make_binary(EQ, sv); }
       if (name == "bool_eq") { return make_binary(EQ, sv); }
